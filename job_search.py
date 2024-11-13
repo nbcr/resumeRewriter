@@ -8,13 +8,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from generate_cover_letter import has_applied_to_job
 
-
 def initialize_driver():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     service = Service("C:/Apps/chromedriver/chromedriver.exe")
     return webdriver.Chrome(service=service, options=chrome_options)
-
 
 def fetch_job_postings(driver, url, max_jobs=3):
     driver.get(url)
@@ -38,7 +36,7 @@ def fetch_job_postings(driver, url, max_jobs=3):
                     salary = job.find_element(By.XPATH, './a/ul/li[4]').text.strip()
                 except NoSuchElementException:
                     salary = 'Not specified'
-
+                
                 all_job_postings.append({
                     'title': title,
                     'company': company,
@@ -46,7 +44,7 @@ def fetch_job_postings(driver, url, max_jobs=3):
                     'salary': salary,
                     'url': job_url
                 })
-
+            
             except NoSuchElementException:
                 continue
 
@@ -56,11 +54,11 @@ def fetch_job_postings(driver, url, max_jobs=3):
     # Filter out already-applied jobs and limit to `max_jobs`
     unique_jobs = []
     for job in all_job_postings:
-        if has_applied_to_job(job['url']):
+        if has_applied_to_job(job):  # Passing the entire job dictionary here
             print(f"Skipping already applied job: {job['title']} at {job['company']}")
             continue
         unique_jobs.append(job)
         if len(unique_jobs) >= max_jobs:
             break
-    
+
     return unique_jobs

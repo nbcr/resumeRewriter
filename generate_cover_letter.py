@@ -2,8 +2,12 @@ import openai
 import os
 from file_utils import sanitize_filename
 
-# Set your OpenAI API key here
-openai.api_key = "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"  # Replace with your actual API key
+# Load the OpenAI API key from ApiKey.txt
+def load_api_key():
+    with open("ApiKey.txt", "r") as file:
+        return file.read().strip()
+
+openai.api_key = load_api_key()
 
 def generate_cover_letter(job, contact_info):
     # Construct a prompt for generating a cover letter
@@ -42,7 +46,7 @@ def log_applied_job(job):
         file.write(job_url + '\n')
 
 def has_applied_to_job(job):
-    job_url = job.get('url', '').strip()  # Access the URL directly from the job dictionary
+    job_url = job.get('url', '').strip()
 
     try:
         with open('applied_jobs.txt', 'r') as file:

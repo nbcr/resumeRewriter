@@ -9,6 +9,7 @@ from extract_resume_info import extract_info_from_resume
 from generate_cover_letter import generate_cover_letter, log_applied_job, has_applied_to_job
 from save_pdf import save_cover_letter_as_pdf
 from file_utils import sanitize_filename
+from get_address import get_company_address  # Importing the address function
 
 # Initialize Web Driver
 def initialize_driver():
@@ -48,20 +49,21 @@ for job in job_postings:
     # Generate a cover letter for the job
     cover_letter_content = generate_cover_letter(job, contact_info)
     
-    # Find additional company details if available
+    # Fetch the company address
+    company_address = get_company_address(job['company'], job['location'])
+    
+    # Define company details, removing "not found" placeholders
     company_details = {
-        "address": "Company Address",  # Add a dynamic lookup here if necessary
-        "phone": "Company Phone"
+        "address": company_address if company_address != "Address not found" else "",
+        "phone": "Company Phone"  # Placeholder or dynamic retrieval
     }
+    
+    # Remove placeholders in the cover letter content
+    if not company_details["address"]:
+        cover_letter_content = cover_letter_content.replace("Company Address", "")
+    if not job['location']:
+        cover_letter_content = cover_letter_content.replace("Location", "")
     
     # Save the cover letter as a PDF
     pdf_path = save_cover_letter_as_pdf(cover_letter_content, job, contact_info, company_details)
     print(f"Cover letter saved to {pdf_path}")
-    
-    # Log that we've applied to this job
-    log_applied_job(job)
-    
-    # Small delay between processing jobs
-    time.sleep(2)
-
-print("Job application process completed.")
